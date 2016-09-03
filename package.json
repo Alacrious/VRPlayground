@@ -19,5 +19,9 @@
     "aframe-scene",
     "webvr",
     "vr"
-  ]
+  ],
+ "repository" :
+  { "type" : "git"
+  , "url" : "https://github.com/Alacrious/Alacrious.github.io.git"
+  }
 }

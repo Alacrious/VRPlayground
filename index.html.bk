@@ -1,0 +1,125 @@
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Video in VR</title>
+        <meta name="description" content="Testing VR">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <script src="js/aframe.js"></script>
+      </head>
+      <body>
+
+        <a-scene>
+            <!-- Assets management system -->
+            <a-assets>
+                <img id="minions" src="images/minions.jpg">
+                <img id="kungfupanda" src="images/kungfupanda.jpg">
+                <img id="neo" src="images/neo.jpg">
+                <video id="grapes" src="videos/grapes.mp4">
+            </a-assets>
+
+            
+            <a-curvedimage id="minions-obj" src="#minions" radius="5" theta-length="80" rotation="0 0 0" height="6"
+                           play-video="on:click; src:#grapes">
+            </a-curvedimage>
+            <a-curvedimage id="panda-obj" src="#kungfupanda" radius="5" theta-length="80" rotation="0 90 0" height="6">
+            </a-curvedimage>
+            <a-curvedimage id="neo-obj" src="#neo" radius="5" theta-length="80" rotation="0 180 0" height="6">
+            </a-curvedimage>
+            
+            <a-videosphere id="video-player"></a-videosphere>
+
+            <!-- Camera -->
+            <!-- TODO Fusing not working -->
+            <a-entity camera look-controls>
+                <a-entity cursor="fuse: true; fuseTimeout: 500"
+                 position="0 0 -4.5"
+                 geometry="primitive: ring; radiusOuter: 0.30; radiusInner: 0.20;"
+                 material="color: black; shader: flat">
+                </a-entity>
+            </a-entity>
+            
+            
+            <!--a-sky color="#fff"></a-sky-->
+            
+        </a-scene>
+
+
+        <script>
+        var scene = document.querySelector('a-scene');
+        <!-- Shows full screen videos -->
+        //var videoSphereEl = document.createElement('a-videosphere');    
+        var videoSphereEl = document.querySelector('a-videosphere');
+        var skyObj = document.querySelector('a-sky');
+            
+        //scene.appendChild(videoSphereEl);
+        var minionsImage = document.querySelector('a-curvedimage#minions-obj');
+        minionsImage.addEventListener('click', function() {
+            //minionsImage.setAttribute('visible', 'false');   
+        });
+            
+        var pandaImage = document.querySelector('a-curvedimage#panda-obj');
+        pandaImage.addEventListener('click', function() {
+            //minionsImage.setAttribute('visible', 'true');
+        });
+            
+        // click-listener component to pass window clicks to an entity.
+        AFRAME.registerComponent('click-listener', {
+        init: function () {
+         var el = this.el;
+         window.addEventListener('click', function () {
+            el.emit('click', null, false);
+         });
+        }
+        });
+
+        // Play video component
+        AFRAME.registerComponent('play-video', {
+        schema: {
+            on: { default: 'click' },
+            src: { default: '' }, 
+        },
+            
+        
+        init: function() {
+            this.videoEl = document.querySelector(this.data.src);
+        },
+
+        /**
+        * Add event listener.
+        */
+        update: function (oldData) {
+            this.el.addEventListener(this.data.on, this.showFullScreenVideo.bind(this));
+            
+        },
+
+        showFullScreenVideo: function() {
+            this.hideHomeScreen();
+            videoSphereEl.setAttribute('src', this.data.src);
+            this.videoEl.play();
+        },
+            
+        hideHomeScreen: function() {
+            var children = document.querySelectorAll('a-curvedimage');
+            for(var i=0; i<children.length; i++) {
+                children[i].setAttribute('visible', 'false');
+            }
+            
+            //scene.removeChild(skyObj);
+        },
+            
+        showHomeScreen: function() {
+            videoSphereEl.removeAttribute('src');
+            videoSphereEl.setAttribute('visible', 'false')
+            var children = document.querySelectorAll('a-curvedimage');
+            for(var i=0; i<children.length; i++) {
+                children[i].setAttribute('visible', 'true');
+            }
+            
+            //scene.appendChild(skyObj);
+        }
+
+        });
+        </script>
+      </body>
+    </html>
