@@ -16,38 +16,58 @@
         <a-scene>
             <!-- Assets management system -->
             <a-assets>
-                <img id="minions" src="images/minions.jpg" />
-                <img id="kungfupanda" src="images/kungfupanda.jpg" />
-                <img id="neo" src="images/neo.jpg" />
-                <video id="grapes" src="videos/grapes.mp4"/>
-                <video id="entel_video" src="videos/ENTEL_FINAL_360.mp4"/>
-                <img id="back" src="images/back.png"/>
+
+                <img id="play" src="images/play.png"/>
+                <img id="home" src="images/home.png"/>
+                <img id="entel-thumbnail" src="images/entel-logo.png"/>
+                <img id="entel-sky" src="images/entel-sky.jpg"/>
+                <video id="entel-video" src="videos/ENTEL_FINAL_360.mp4"/>
+                <video id="entel-video-2" src="videos/ENTEL_VR_2.mp4"/>
+                <video id="entel-video-3" src="videos/ENTEL_VR_3.mp4"/>
+
             </a-assets>
 
 
-            <a-curvedimage id="minions-obj" src="#minions" radius="10" theta-length="80" rotation="0 0 0" height="10" play-video="on:click; src:#grapes" material="color:#FFF;shader:flat;side:double;transparent:true;repeat:-1 1;src:#minions" geometry="" position="0 0 0" scale="1 1 1" visible="true">
+            <a-curvedimage id="entel-logo" src="#entel-thumbnail" radius="30" theta-length="40" rotation="0 0 0" height="4"
+                           position="0 0 4" play-video="on:click; src:#entel-video"> 
+                <a-animation attribute="scale" begin="mouseenter" to="1.5 1.5 1.5"></a-animation>
+                <a-animation attribute="scale" begin="mouseleave" to="1 1 1"></a-animation>
             </a-curvedimage>
 
-            <a-curvedimage id="panda-obj" src="#kungfupanda" radius="10" theta-length="80" rotation="0 90 0" height="10" material="" geometry="" position="" scale="" visible="" play-video="on:click; src:#entel_video">
+            <a-curvedimage id="panda-obj" src="#entel-thumbnail" radius="30" theta-length="40" rotation="0 40 0" height="4"
+                           position="4 0 4" play-video="on:click; src:#entel-video-2">
+                <a-animation attribute="scale" begin="mouseenter" to="1.5 1.5 1.5"></a-animation>
+                <a-animation attribute="scale" begin="mouseleave" to="1 1 1"></a-animation>
             </a-curvedimage>
-            <a-curvedimage id="neo-obj" src="#neo" radius="10" theta-length="80" rotation="0 180 0" height="10" material="" geometry="" position="" scale="" visible="">
+
+            <a-curvedimage id="neo-obj" src="#entel-thumbnail" radius="30" theta-length="40" rotation="0 80 0" height="4"
+                           position="4 0 0" play-video="on:click; src:#entel-video-3">
+                <a-animation attribute="scale" begin="mouseenter" to="1.5 1.5 1.5"></a-animation>
+                <a-animation attribute="scale" begin="mouseleave" to="1 1 1"></a-animation>
             </a-curvedimage>
 
             <a-videosphere id="video-player" material="" geometry="" scale="" position="" rotation="" visible=""></a-videosphere>
 
             <!-- Camera -->
             <!-- TODO Fusing not working -->
-            <a-entity rotation="0 -45 0">
+            <a-entity id="camera_wrapper" rotation="0 -120 0" position="0 0 0">
                 <a-camera look-controls>
-                    <a-cursor id="cursor" color="yellow"></a-cursor>
+                    <a-cursor id="cursor" cursor="fuse: false; maxDistance: 500; timeout: 3000"></a-cursor>
                 </a-camera>
             </a-entity>
 
-            <a-entity id=cubemap cubemap="folder: /images/skybox/"></a-entity>
+            <!--a-entity id=cubemap cubemap="folder: /images/skybox/"></a-entity-->
 
-            <a-entity id=playback-controls visible="false"></a-entity>
-            
-            <a-image id=back src="#back" visible="false"></a-image>
+            <!--a-entity id=playback-controls visible="false"></a-entity-->
+
+            <!--a-image id=back src="#back" visible="false"></a-image-->
+
+            <a-entity id="menu" visible="false">
+                <a-image id="play" src="#play" position="-2.5 0 0" width=2 height=2></a-image>
+                <a-image id="home" src="#home" position="2.5 0 0" width=2 height=2></a-image>
+            </a-entity>
+
+            <a-sky src="#entel-sky"></a-sky>
 
         </a-scene>
 
@@ -56,20 +76,27 @@
             var scene = document.querySelector('a-scene');
             <!-- Shows full screen videos -->
             var videoSphereEl = document.querySelector('a-videosphere');
-            var skyboxObj = document.querySelector('a-entity#cubemap'); 
-            var playbackEl = document.querySelector('a-entity#playback-controls');
-            var backButton = document.querySelector('a-image#back');
-            
+            //var skyboxObj = document.querySelector('a-entity#cubemap'); 
+            var skyboxObj = document.querySelector('a-sky');
+            //var playbackEl = document.querySelector('a-entity#playback-controls');
+            //var backButton = document.querySelector('a-image#back');
+            var playButton = document.querySelector('a-image#play');
+            var homeButton = document.querySelector('a-image#home');
+            var menuButton = document.querySelector('a-entity#menu');
+            var cameraWrapper = document.querySelector('a-entity#camera_wrapper');
+
+
+
             // click-listener component to pass window clicks to an entity.
             AFRAME.registerComponent('click-listener', {
                 init: function () {
                     var el = this.el;
                     window.addEventListener('click', function () {
                         el.emit('click', null, false);
-                    });
+                    }); 
                 }
             });
-            
+
 
             // Play video component
             AFRAME.registerComponent('play-video', {
@@ -78,33 +105,45 @@
                     src: { default: '' }, 
                 },
 
+                tick: function() {
+
+                },
+
+                enable_menu: function() {
+                    a = document.querySelector('a-camera');
+                    var s = a.object3D.getWorldDirection().projectOnPlane(new THREE.Vector3(0, 1, 0)).setLength(8);
+                    menuButton.object3D.position.copy(a.object3D.getWorldPosition().sub(s)), menuButton.object3D.lookAt(a.object3D.getWorldPosition());
+                    menuButton.setAttribute('visible', 'true');
+                },
+
+                disable_menu: function() {
+                    menuButton.setAttribute("visible", "false");
+                },
+
+                start_video: function() {
+                    this.disable_menu();
+                    this.videoEl.play();
+                },
 
                 init: function() {
-                    backButton.addEventListener('click', this.showHomeScreen.bind(this));
+                    homeButton.addEventListener('click', this.showHomeScreen.bind(this));
+                    playButton.addEventListener('click', this.start_video.bind(this));
                     this.videoEl = document.querySelector(this.data.src);
-                    this.videoEl.addEventListener("ended", function() {
-                        backButton.setAttribute("width", 5);
-                        backButton.setAttribute("height", 5);
-                        backButton.setAttribute("visible", "true");
-                        var camera = document.querySelector("a-camera");
-                        var worldDirection = camera.object3D.getWorldDirection();
-                        var worldPosition    = camera.object3D.getWorldPosition();    
-                        var s = worldDirection.projectOnPlane(new THREE.Vector3(0, 1, 0)).setLength(10);
-                        backButton.object3D.position.copy(worldPosition.sub(s));
-                        backButton.object3D.lookAt(worldPosition);
-                    });
+                    this.videoEl.addEventListener("ended", this.enable_menu.bind(this));
+                    this.el.addEventListener(this.data.on, this.showFullScreenVideo.bind(this));
                 },
 
                 /**
                 * Add event listener.
                 */
                 update: function (oldData) {
-                    this.el.addEventListener(this.data.on, this.showFullScreenVideo.bind(this));
+
                 },
 
                 showFullScreenVideo: function() {
                     this.hideHomeScreen();
                     videoSphereEl.setAttribute('src', this.data.src);
+                    videoSphereEl.setAttribute('visible', 'true');
                     //playbackEl.setAttribute('video-controls', {src:this.data.src, size:10, distance:10});
                     //playbackEl.setAttribute('visible', 'true');
                     this.videoEl.play();
@@ -120,16 +159,17 @@
                 },
 
                 showHomeScreen: function() {
-                    backButton.setAttribute('visible', 'false');
+                    cameraWrapper.setAttribute('rotation', '0 -120 0');
+                    this.disable_menu();
                     videoSphereEl.removeAttribute('src');
-                    videoSphereEl.setAttribute('visible', 'false')
+                    videoSphereEl.setAttribute('visible', 'false');
                     var children = document.querySelectorAll('a-curvedimage');
                     for(var i=0; i<children.length; i++) {
                         children[i].setAttribute('visible', 'true');
                     }
 
                     skyboxObj.setAttribute('visible', 'true');
-                    playbackEl.setAttribute('visible', 'false');
+
                 }
 
             });
