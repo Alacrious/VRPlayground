@@ -1,15 +1,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
         <meta charset="utf-8" />
-        <title>Video in VR</title>
-        <meta name="description" content="Testing VR" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <title>Entel VR</title>
+        <meta name="description" content="Entel VR"/>
+        <!--meta name="apple-mobile-web-app-capable" content="yes"/-->
 
-        <script src="js/aframe.js"></script>
-        <script src="js/aframe-cubemap-component.js"></script>
+        <!--script src="js/aframe.js"></script-->
+        <!--script src="js/aframe-cubemap-component.js"></script-->
+        <script src="https://aframe.io/releases/0.3.1/aframe.min.js"></script>
         <script src="js/aframe-video-controls.js"></script>
-        <!--script async="" src="https://www.google-analytics.com/analytics.js"></script-->
-        <!--script src="https://aframe.io/releases/0.3.0/aframe-inspector.min.js"></script-->
+        <!--script src="https://rawgit.com/oscarmarinmiro/aframe-video-controls/master/dist/aframe-video-controls.min.js"></script-->
+        <!--script src="js/aframe-inspector.js"></script-->
     </head>
     <body>
 
@@ -19,38 +20,51 @@
 
                 <img id="play" src="images/play.png"/>
                 <img id="home" src="images/home.png"/>
-                <img id="entel-thumbnail" src="images/entel-logo.png"/>
-                <img id="entel-sky" src="images/entel-sky.jpg"/>
+                <img id="threesixty-tower-thumbnail" src="images/360_tower_video_icon.jpg"/>
+                <img id="dirt-bike-thumbnail" src="images/dirt_bike_video_icon.jpg"/>
+                <img id="parachute-thumbnail" src="images/parachute_video_icon.jpg">
+                <img id="entel-sky" src="images/Background.jpg"/>
+
+                <!--TODO Check videos are working-->
                 <video id="entel-video" src="videos/ENTEL_FINAL_360.mp4"/>
-                <video id="entel-video-2" src="videos/ENTEL_VR_2.mp4"/>
-                <video id="entel-video-3" src="videos/ENTEL_VR_3.mp4"/>
+                <video id="dirt-bike-video" src="videos/ENTEL_VR_2.mp4"/>
+                <video id="parachute-video" src="videos/ENTEL_VR_3.mp4"/>
 
             </a-assets>
 
 
-            <a-curvedimage id="entel-logo" src="#entel-thumbnail" radius="30" theta-length="40" rotation="0 0 0" height="4"
+            <!--a-curvedimage id="entel-logo" src="#dirt_bike_thumbnail" radius="30" theta-length="40" rotation="0 0 0" height="4"
                            position="0 0 4" play-video="on:click; src:#entel-video"> 
                 <a-animation attribute="scale" begin="mouseenter" to="1.5 1.5 1.5"></a-animation>
                 <a-animation attribute="scale" begin="mouseleave" to="1 1 1"></a-animation>
-            </a-curvedimage>
+            </a-    >
 
-            <a-curvedimage id="panda-obj" src="#entel-thumbnail" radius="30" theta-length="40" rotation="0 40 0" height="4"
+            <a-curvedimage id="panda-obj" src="#360_tower_thumbnail" radius="30" theta-length="40" rotation="0 40 0" height="4"
                            position="4 0 4" play-video="on:click; src:#entel-video-2">
                 <a-animation attribute="scale" begin="mouseenter" to="1.5 1.5 1.5"></a-animation>
                 <a-animation attribute="scale" begin="mouseleave" to="1 1 1"></a-animation>
             </a-curvedimage>
 
-            <a-curvedimage id="neo-obj" src="#entel-thumbnail" radius="30" theta-length="40" rotation="0 80 0" height="4"
+            <a-curvedimage id="neo-obj" src="#parachute_thumnail" radius="30" theta-length="40" rotation="0 80 0" height="4"
                            position="4 0 0" play-video="on:click; src:#entel-video-3">
                 <a-animation attribute="scale" begin="mouseenter" to="1.5 1.5 1.5"></a-animation>
                 <a-animation attribute="scale" begin="mouseleave" to="1 1 1"></a-animation>
-            </a-curvedimage>
+            </a-curvedimage-->
+
+            <a-entity position="-10 5 0" rotation="0 90 0">
+                <a-image id="dirt-bike" src="#dirt-bike-thumbnail" position="-8 0 0" scale="3 4.8 1"
+                            play-video="on:click; src:#dirt-bike-video"></a-image>
+                <a-image id="threesixty-tower" src="#threesixty-tower-thumbnail" position="0 -5 0" scale="7.2 3 1"
+                             play-video="on:click; src:#entel-video"></a-image>   
+                <a-image id="parachute" src="#parachute-thumbnail" position="8 0 0" scale="3 4.8 1"
+                             play-video="on:click; src:#parachute-video"></a-image>
+            </a-entity>
 
             <a-videosphere id="video-player" material="" geometry="" scale="" position="" rotation="" visible=""></a-videosphere>
 
             <!-- Camera -->
             <!-- TODO Fusing not working -->
-            <a-entity id="camera_wrapper" rotation="0 -120 0" position="0 0 0">
+            <a-entity id="camera_wrapper" rotation="0 90 0" position="0 0 0">
                 <a-camera look-controls>
                     <a-cursor id="cursor" cursor="fuse: false; maxDistance: 500; timeout: 3000"></a-cursor>
                 </a-camera>
@@ -70,6 +84,7 @@
             <a-sky src="#entel-sky"></a-sky>
 
         </a-scene>
+        <!--script src="js/aframe-inspector.js"></script-->
 
 
         <script>
@@ -84,6 +99,10 @@
             var homeButton = document.querySelector('a-image#home');
             var menuButton = document.querySelector('a-entity#menu');
             var cameraWrapper = document.querySelector('a-entity#camera_wrapper');
+
+            var entelVideoEl = document.querySelector('a-image#threesixty-tower');
+            var dirtBikeVideoEl = document.querySelector('a-image#dirt-bike');
+            var parachuteVideoEl = document.querySelector('a-image#parachute');
 
 
 
@@ -150,10 +169,13 @@
                 },
 
                 hideHomeScreen: function() {
-                    var children = document.querySelectorAll('a-curvedimage');
+                    /*var children = document.querySelectorAll('a-image');
                     for(var i=0; i<children.length; i++) {
                         children[i].setAttribute('visible', 'false');
-                    }
+                    }*/
+                    entelVideoEl.setAttribute('visible', 'false');
+                    dirtBikeVideoEl.setAttribute('visible', 'false');
+                    parachuteVideoEl.setAttribute('visible', 'false');
 
                     skyboxObj.setAttribute('visible', 'false');
                 },
@@ -163,10 +185,13 @@
                     this.disable_menu();
                     videoSphereEl.removeAttribute('src');
                     videoSphereEl.setAttribute('visible', 'false');
-                    var children = document.querySelectorAll('a-curvedimage');
+                    /*var children = document.querySelectorAll('a-image');
                     for(var i=0; i<children.length; i++) {
                         children[i].setAttribute('visible', 'true');
-                    }
+                    }*/
+                    entelVideoEl.setAttribute('visible', 'true');
+                    dirtBikeVideoEl.setAttribute('visible', 'true');
+                    parachuteVideoEl.setAttribute('visible', 'true');
 
                     skyboxObj.setAttribute('visible', 'true');
 
