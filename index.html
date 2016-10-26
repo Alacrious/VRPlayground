@@ -20,9 +20,9 @@
 
                 <img id="play" src="images/play.png"/>
                 <img id="home" src="images/home.png"/>
-                <img id="threesixty-tower-thumbnail" src="images/360_tower_video_icon.jpg"/>
-                <img id="dirt-bike-thumbnail" src="images/dirt_bike_video_icon.jpg"/>
-                <img id="parachute-thumbnail" src="images/parachute_video_icon.jpg">
+                <img id="threesixty-tower-thumbnail" src="images/tower.jpg"/>
+                <img id="dirt-bike-thumbnail" src="images/bike.jpg"/>
+                <img id="parachute-thumbnail" src="images/parachute.jpg">
                 <img id="entel-sky" src="images/Background.jpg"/>
 
                 <!--TODO Check videos are working-->
@@ -51,12 +51,12 @@
                 <a-animation attribute="scale" begin="mouseleave" to="1 1 1"></a-animation>
             </a-curvedimage-->
 
-            <a-entity position="-10 5 0" rotation="0 90 0">
-                <a-image id="dirt-bike" src="#dirt-bike-thumbnail" position="-8 0 0" scale="3 4.8 1"
+            <a-entity position="-2 5 0" rotation="0 90 0">
+                <a-image id="dirt-bike" src="#dirt-bike-thumbnail" position="-1.5 -3 0" scale="1 1 1" rotation="0 45 0"
                             play-video="on:click; src:#dirt-bike-video"></a-image>
-                <a-image id="threesixty-tower" src="#threesixty-tower-thumbnail" position="0 -5 0" scale="7.2 3 1"
+                <a-image id="threesixty-tower" src="#threesixty-tower-thumbnail" position="0 -4 0" scale="1 1 1"
                              play-video="on:click; src:#entel-video"></a-image>   
-                <a-image id="parachute" src="#parachute-thumbnail" position="8 0 0" scale="3 4.8 1"
+                <a-image id="parachute" src="#parachute-thumbnail" position="1.5 -3 0" scale="1 1 1" rotation="0 -45 0"
                              play-video="on:click; src:#parachute-video"></a-image>
             </a-entity>
 
@@ -103,8 +103,8 @@
             var entelVideoEl = document.querySelector('a-image#threesixty-tower');
             var dirtBikeVideoEl = document.querySelector('a-image#dirt-bike');
             var parachuteVideoEl = document.querySelector('a-image#parachute');
-
-
+            var playMode = false;
+            var videoSrc = '';
 
             // click-listener component to pass window clicks to an entity.
             AFRAME.registerComponent('click-listener', {
@@ -112,7 +112,7 @@
                     var el = this.el;
                     window.addEventListener('click', function () {
                         el.emit('click', null, false);
-                    }); 
+                    });
                 }
             });
 
@@ -133,6 +133,7 @@
                     var s = a.object3D.getWorldDirection().projectOnPlane(new THREE.Vector3(0, 1, 0)).setLength(8);
                     menuButton.object3D.position.copy(a.object3D.getWorldPosition().sub(s)), menuButton.object3D.lookAt(a.object3D.getWorldPosition());
                     menuButton.setAttribute('visible', 'true');
+                    playMode = false;
                 },
 
                 disable_menu: function() {
@@ -141,7 +142,22 @@
 
                 start_video: function() {
                     this.disable_menu();
-                    this.videoEl.play();
+                    if(!playMode && videoSrc===this.data.src) {
+                        this.videoEl.play();
+                        playMode = true;
+                        videoSrc = this.data.src;
+                    }
+                },
+
+                on_dbl_click: function() {
+                    console.log('dblclicked');
+                    if(playMode && videoSrc===this.data.src) {
+                        playMode = false;
+                        var video = document.querySelector(videoSrc);
+                        video.pause();
+                        this.enable_menu();
+                    }
+
                 },
 
                 init: function() {
@@ -150,6 +166,7 @@
                     this.videoEl = document.querySelector(this.data.src);
                     this.videoEl.addEventListener("ended", this.enable_menu.bind(this));
                     this.el.addEventListener(this.data.on, this.showFullScreenVideo.bind(this));
+                    this.el.sceneEl.addEventListener('dblclick', this.on_dbl_click.bind(this));
                 },
 
                 /**
@@ -166,6 +183,8 @@
                     //playbackEl.setAttribute('video-controls', {src:this.data.src, size:10, distance:10});
                     //playbackEl.setAttribute('visible', 'true');
                     this.videoEl.play();
+                    playMode = true;
+                    videoSrc = this.data.src;
                 },
 
                 hideHomeScreen: function() {
@@ -181,7 +200,8 @@
                 },
 
                 showHomeScreen: function() {
-                    cameraWrapper.setAttribute('rotation', '0 -120 0');
+                    cameraWrapper.setAttribute('rotation', {x: 0, y: 135, z: 0});
+                    //cameraWrapper.setAttribute('rotation', '0 90 0');
                     this.disable_menu();
                     videoSphereEl.removeAttribute('src');
                     videoSphereEl.setAttribute('visible', 'false');
